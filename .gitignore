@@ -1,0 +1,7 @@
+.vs/
+x64/
+Tornado_Engine.sln
+Tornado_Engine/x64
+Tornado_Engine/Tornado_Engine.vcxproj
+Tornado_Engine/Tornado_Engine.vcxproj.filters
+Tornado_Engine/Tornado_Engine.vcxproj.user

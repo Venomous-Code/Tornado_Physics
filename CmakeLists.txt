@@ -1,0 +1,22 @@
+cmake_minimum_required(VERSION 3.0.0)
+project(Tornado_Engine)
+
+
+set(OsBits 32)
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+  set(OsBits 64)
+endif()
+
+
+set(fullOutputDir
+  "${CMAKE_SOURCE_DIR}/build/bin/${CMAKE_SYSTEM_NAME}-${OsBits}/${CMAKE_BUILD_TYPE}"
+)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${fullOutputDir}/Libraries")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${fullOutputDir}")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${fullOutputDir}")
+
+file(GLOB_RECURSE SRC_FILES
+  "${CMAKE_SOURCE_DIR}/Tornado_Engine/*.cpp"
+  "${CMAKE_SOURCE_DIR}/Tornado_Engine/*.h"
+)
+add_executable(${PROJECT_NAME} ${SRC_FILES})
