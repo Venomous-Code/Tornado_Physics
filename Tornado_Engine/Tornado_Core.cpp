@@ -10,11 +10,15 @@ Make Sure to do PRs. That would be highly appreciated. Thanks Again.
 
 
 #include "Vectors.h"
+#include "TGraphics.h"
 using namespace Vectors;
+using namespace TGraphics;
 int main() {
 
 	Vec2D vec2;
 
+	SDL_Setup sdlGfx;
+	sdlGfx.T_CreateWindow("TORNADO_ENGINE", 1280, 720);
 
 	std::cin.get();
 }

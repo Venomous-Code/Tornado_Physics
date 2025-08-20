@@ -14,7 +14,6 @@ namespace Vectors {
 		//DESTRUCTORS
 		~Vec2D();
 
-	private:
 		//METHODS
 		void Vec2DAddition(const Vec2D& v);
 		void Vec2DSubtraction(const Vec2D& v);
@@ -50,5 +49,9 @@ namespace Vectors {
 		//DATA MEMBERS
 		float xComponent;
 		float yComponent;
+
+	private:
+
+
 	};
 }
