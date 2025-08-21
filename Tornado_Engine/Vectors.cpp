@@ -3,7 +3,7 @@
 Vectors::Vec2D::Vec2D()
 	: xComponent(0.0f), yComponent(0.0f)
 {
-	
+
 }
 
 Vectors::Vec2D::Vec2D(float xComponent, float yComponent)
@@ -12,7 +12,7 @@ Vectors::Vec2D::Vec2D(float xComponent, float yComponent)
 
 }
 
-Vectors::Vec2D::~Vec2D(){}
+Vectors::Vec2D::~Vec2D() {}
 
 void Vectors::Vec2D::Vec2DAddition(const Vec2D& v)
 {
@@ -65,8 +65,8 @@ Vectors::Vec2D Vectors::Vec2D::Vec2DUnitVector() const
 	Vec2D result = Vec2D(0.0f, 0.0f);
 	float Len = Vec2DMagnitude();
 	if (Len != 0.0f) {
-		result.xComponent = xComponent/Len;
-		result.yComponent = yComponent/Len;
+		result.xComponent = xComponent / Len;
+		result.yComponent = yComponent / Len;
 	}
 	return result;
 }

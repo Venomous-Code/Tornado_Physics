@@ -9,16 +9,14 @@ Make Sure to do PRs. That would be highly appreciated. Thanks Again.
 */
 
 
-#include "Vectors.h"
-#include "TGraphics.h"
-using namespace Vectors;
-using namespace TGraphics;
+#include "T_Sandbox.h"
 int main() {
 
-	Vec2D vec2;
+	
+	Tornado_Engine::Sandbox sandbox;
+	sandbox.T_Update();
+	sandbox.T_MainLoop();
 
-	SDL_Setup sdlGfx;
-	sdlGfx.T_CreateWindow("TORNADO_ENGINE", 1280, 720);
 
 	std::cin.get();
 }
