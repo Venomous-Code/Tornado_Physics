@@ -2,29 +2,29 @@
 
 void T_Graphics::Graphics::T_GraphicsInit(const char* windowName, unsigned int windowWidth, unsigned int windowHeight, SDL_WindowFlags mainWindowFlags)
 {
-	SDL_Init(VIDEO_MODE);
+	SDL_Init(SDL_INIT_VIDEO);
 	mainWindow = SDL_CreateWindow(windowName, windowWidth, windowHeight, mainWindowFlags);
 }
 
-void T_Graphics::Graphics::T_CreateRenderer(SDL_Renderer* mainRenderer)
+void T_Graphics::Graphics::T_CreateRenderer()
 {
 	mainRenderer = SDL_CreateRenderer(mainWindow, NULL);
 }
 
-void T_Graphics::Graphics::T_ClearScreen(SDL_Renderer* mainRenderer,int Red, int Green, int Blue)
+void T_Graphics::Graphics::T_ClearScreen(int Red, int Green, int Blue)
 {
-	SDL_SetRenderDrawColor(mainRenderer, 255, 255, 255, 255);
+	SDL_SetRenderDrawColor(mainRenderer, Red, Green, Blue, 255);
 	SDL_RenderClear(mainRenderer);
 }
 
-void T_Graphics::Graphics::T_Terminate(SDL_Renderer* mainRenderer)
+void T_Graphics::Graphics::T_Terminate()
 {
 	SDL_DestroyRenderer(mainRenderer);
 	SDL_DestroyWindow(mainWindow);
 	SDL_Quit();
 }
 
-void T_Graphics::Graphics::T_DrawCircle(SDL_Renderer* mainRenderer, int Cx, int Cy, int Radius)
+void T_Graphics::Graphics::T_DrawCircle(int Cx, int Cy, int Radius)
 {
 	int x = 0;
 	int y = Radius;
@@ -50,12 +50,12 @@ void T_Graphics::Graphics::T_DrawCircle(SDL_Renderer* mainRenderer, int Cx, int 
 	}
 }
 
-void T_Graphics::Graphics::T_DrawLine(SDL_Renderer* mainRenderer, int startX, int startY, int endX, int endY)
+void T_Graphics::Graphics::T_DrawLine(int startX, int startY, int endX, int endY)
 {
 	SDL_RenderLine(mainRenderer, startX, startY, endX, endY);
 }
 
-void T_Graphics::Graphics::T_DrawCirleFilled(SDL_Renderer* mainRenderer, int Cx, int Cy, int Radius)
+void T_Graphics::Graphics::T_DrawCirleFilled(int Cx, int Cy, int Radius)
 {
 	int x = 0;
 	int y = Radius;
@@ -78,4 +78,3 @@ void T_Graphics::Graphics::T_DrawCirleFilled(SDL_Renderer* mainRenderer, int Cx,
 		x++;
 	}
 }
-
