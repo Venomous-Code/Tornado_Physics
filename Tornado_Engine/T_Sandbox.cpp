@@ -1,4 +1,5 @@
 #include "T_Sandbox.h"
+#include "Constants.h"
 
 Tornado_Engine::Sandbox::Sandbox()
 {
@@ -12,6 +13,8 @@ Tornado_Engine::Sandbox::~Sandbox()
 	//DELETE THE INSTANCES OVER HERE.
 	delete vec2;
 	delete GFX;
+	delete particle;
+	std::cout << "[ALL INSTANCES DESTROYED SUCCESSFULLY.]" << std::endl;
 }
 
 void Tornado_Engine::Sandbox::T_MainLoop()
@@ -42,6 +45,9 @@ void Tornado_Engine::Sandbox::DrawNow(SDL_Renderer* renderer)
 	//draw.T_DrawCirleFilled(renderer, particle->Position.xComponent, particle->Position.yComponent, 5);
 	GFX->T_DrawCirleFilled(particle->Position.xComponent, particle->Position.yComponent, 5);
 
+	//PHYSICS UPDATES
+	T_UpdatePhysics();
+
 	SDL_RenderPresent(renderer);
 }
 
@@ -51,14 +57,32 @@ void Tornado_Engine::Sandbox::T_Update()
 	GFX->T_GraphicsInit("TORNADO_ENGINE", 800, 600, SDL_WINDOW_MAXIMIZED);
 	GFX->T_CreateRenderer();
 
+	//PHYSICS ONETIME
+	T_OneTimePhysicsSetup();
 }
 
-void Tornado_Engine::Sandbox::T_DrawPolygon(SDL_Renderer* renderer, int x, int y, const std::vector<Vectors::Vec2D>& vertices)
-{
-	for (int i = 0; i < vertices.size(); i++) {
-		int currIndex = i;
-		int nextIndex = (i + 1) % vertices.size();
-		SDL_RenderLine(renderer, vertices[currIndex].xComponent, vertices[currIndex].yComponent, vertices[nextIndex].xComponent, vertices[nextIndex].yComponent);
+
+void Tornado_Engine::Sandbox::T_UpdatePhysics() {
+
+	//Implement Framerate Control
+	int timeToWait = MILLI_SECONDS_PER_FRAME - (SDL_GetTicks() - timePreviousFrame);
+	if (timeToWait > 0) {
+		SDL_Delay(timeToWait);
 	}
-	GFX->T_DrawCirleFilled( x, y, 1);
+
+	timePreviousFrame = SDL_GetTicks();
+
+	//Update Position According To Velocity
+	/*particle->Position.xComponent += particle->Velocity.xComponent;
+	particle->Position.yComponent += particle->Velocity.yComponent;
+									OR
+	particle->Position.Vec2DAddition(particle->Velocity);
+									OR
+									*/
+	particle->Position += particle->Velocity;
+}
+
+
+void Tornado_Engine::Sandbox::T_OneTimePhysicsSetup() {
+	particle->Velocity = Vectors::Vec2D(2.0f, 0.0f);
 }

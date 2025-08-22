@@ -78,3 +78,13 @@ void T_Graphics::Graphics::T_DrawCirleFilled(int Cx, int Cy, int Radius)
 		x++;
 	}
 }
+
+void T_Graphics::Graphics::T_DrawPolygon(int x, int y, const std::vector<Vectors::Vec2D>& vertices)
+{
+	for (int i = 0; i < vertices.size(); i++) {
+		int currIndex = i;
+		int nextIndex = (i + 1) % vertices.size();
+		SDL_RenderLine(mainRenderer, vertices[currIndex].xComponent, vertices[currIndex].yComponent, vertices[nextIndex].xComponent, vertices[nextIndex].yComponent);
+	}
+	T_DrawCirleFilled(x, y, 1);
+}

@@ -1,8 +1,6 @@
 #pragma once
-#include "Vectors.h"
 #include "T_Graphics.h"
 #include "TParticle.h"
-#include <vector>
 
 namespace Tornado_Engine {
 	class Sandbox
@@ -14,7 +12,9 @@ namespace Tornado_Engine {
 		void T_Update();
 		void T_MainLoop();
 		void DrawNow(SDL_Renderer* renderer);
-		void T_DrawPolygon(SDL_Renderer* renderer, int x, int y, const std::vector<Vectors::Vec2D>& vertices);
+
+		void T_UpdatePhysics();
+		void T_OneTimePhysicsSetup();
 
 	private:
 		Vectors::Vec2D* vec2;
@@ -22,5 +22,6 @@ namespace Tornado_Engine {
 		Particle_Physics::TParticle* particle;
 
 		bool WindowShouldClose = false;
+		uint32_t timePreviousFrame;
 	};
 }
