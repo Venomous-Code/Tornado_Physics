@@ -13,6 +13,7 @@ namespace Particle_Physics {
 		Vectors::Vec2D Position;
 		Vectors::Vec2D Velocity;
 		Vectors::Vec2D Acceleration;
+		int Radius;
 
 		float Mass;
 	private:

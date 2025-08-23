@@ -88,3 +88,17 @@ void T_Graphics::Graphics::T_DrawPolygon(int x, int y, const std::vector<Vectors
 	}
 	T_DrawCirleFilled(x, y, 1);
 }
+
+int T_Graphics::Graphics::T_GetWidth()
+{
+	int WindowWidth = 0;
+	SDL_GetWindowSize(mainWindow, &WindowWidth, nullptr);
+	return WindowWidth;
+}
+
+int T_Graphics::Graphics::T_GetHeight()
+{
+	int WindowHeight = 0;
+	SDL_GetWindowSize(mainWindow, nullptr, &WindowHeight);
+	return WindowHeight;
+}
