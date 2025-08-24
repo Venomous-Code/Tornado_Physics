@@ -82,15 +82,18 @@ void Tornado_Engine::Sandbox::T_UpdatePhysics() {
 	//Update Position According To Velocity
 	/*particle->Position.xComponent += particle->Velocity.xComponent;
 	particle->Position.yComponent += particle->Velocity.yComponent;
-									OR
+									OR 
 	particle->Position.Vec2DAddition(particle->Velocity);
 									OR
 	particle->Position += particle->Velocity * deltaTime;
 									*/
 
+	//ApplyForce
+	Vectors::Vec2D wind = Vectors::Vec2D(0.2f * PIXELS_PER_METER, 0.0f);
+	particle->T_AddForce(wind);
+
 	//HERE THE ACCELERATION IS 9.8 WHICH IS ACTUALLY THE CHANGE IN VELOCITY PER SECOND OR UNIT TIME, SO, HERE IN EACH FRAME WE ARE ACTUALLY UPDATING OUR VELOCITY BASED ON ACCELERATION.
-	particle->Velocity += particle->Acceleration * deltaTime;
-	particle->Position += particle->Velocity * deltaTime;
+	particle->T_EulerIntegrate(deltaTime);
 
 	//BOUND THE PARTICLE INSIDE THE WINDOW
 	if (particle->Position.xComponent - particle->Radius <= 0) {
@@ -116,6 +119,6 @@ void Tornado_Engine::Sandbox::T_UpdatePhysics() {
 void Tornado_Engine::Sandbox::T_OneTimePhysicsSetup() {
 	//ONE TIME PHYSICS UPDATES
 	particle->Velocity = Vectors::Vec2D(0.0f, 0.0f);
-	particle->Acceleration = Vectors::Vec2D(2.0f * PIXELS_PER_METER, 9.8f * PIXELS_PER_METER);
+	particle->Acceleration = Vectors::Vec2D(0.0f, 0.0f);
 	particle->Radius = 4;
 }
