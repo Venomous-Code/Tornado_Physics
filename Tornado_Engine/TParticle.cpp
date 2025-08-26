@@ -4,6 +4,12 @@ Particle_Physics::TParticle::TParticle(int x, int y, float Mass)
 {
 	this->Position = Vectors::Vec2D(x, y);
 	this->Mass = Mass;
+	if (Mass != 0.0f) {
+		this->invMass = 1.0f / Mass;
+	}
+	else {
+		this->invMass = 0.0f;
+	}
 }
 
 Particle_Physics::TParticle::~TParticle()
@@ -12,7 +18,7 @@ Particle_Physics::TParticle::~TParticle()
 
 void Particle_Physics::TParticle::T_EulerIntegrate(float dt)
 {
-	Acceleration = NetForces / Mass;
+	Acceleration = NetForces * invMass;
 	Velocity += Acceleration * dt;
 	Position += Velocity * dt;
 	T_ClearForces();

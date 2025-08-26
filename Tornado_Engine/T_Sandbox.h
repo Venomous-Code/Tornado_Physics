@@ -19,9 +19,15 @@ namespace Tornado_Engine {
 	private:
 		Vectors::Vec2D* vec2;
 		T_Graphics::Graphics* GFX;
-		Particle_Physics::TParticle* particle;
+		Particle_Physics::TParticle* SmallBall;
+		Particle_Physics::TParticle* BigBall;
+		Vectors::Vec2D PushForce;
 
+		//DATA MEMBERS
 		bool WindowShouldClose = false;
 		uint32_t timePreviousFrame;
+
+		//VECTORS
+		std::vector<Particle_Physics::TParticle*> particles;
 	};
 }

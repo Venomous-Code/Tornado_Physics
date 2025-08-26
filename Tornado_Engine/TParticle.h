@@ -21,6 +21,7 @@ namespace Particle_Physics {
 		int Radius;
 
 		float Mass;
+		float invMass;
 	private:
 
 	};

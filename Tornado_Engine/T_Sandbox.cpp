@@ -5,7 +5,12 @@ Tornado_Engine::Sandbox::Sandbox()
 {
 	vec2 = new Vectors::Vec2D(10, 25);
 	GFX = new T_Graphics::Graphics;
-	particle = new Particle_Physics::TParticle(150, 25, 1.0f);
+	/*SmallBall = new Particle_Physics::TParticle(150, 25, 1.0f);
+	SmallBall->Radius = 4;
+	particles.push_back(SmallBall);*/
+	BigBall = new Particle_Physics::TParticle(200, 25, 3.0f);
+	BigBall->Radius = 12;
+	particles.push_back(BigBall);
 }
 
 Tornado_Engine::Sandbox::~Sandbox()
@@ -13,7 +18,9 @@ Tornado_Engine::Sandbox::~Sandbox()
 	//DELETE THE INSTANCES OVER HERE.
 	delete vec2;
 	delete GFX;
-	delete particle;
+	for (auto particle : particles) {
+		delete particle;
+	}
 	std::cout << "[ALL INSTANCES DESTROYED SUCCESSFULLY.]" << std::endl;
 }
 
@@ -22,8 +29,32 @@ void Tornado_Engine::Sandbox::T_MainLoop()
 	while (!WindowShouldClose) {
 		SDL_Event event;
 		while (SDL_PollEvent(&event)) {
-			if (event.type == SDL_EVENT_QUIT) {
+			switch (event.type) {
+			case SDL_EVENT_QUIT:
 				WindowShouldClose = true;
+				break;
+			case SDL_EVENT_KEY_DOWN:
+				if (event.key.key == SDLK_ESCAPE)
+					WindowShouldClose = true;
+				if (event.key.key == SDLK_UP)
+					PushForce.yComponent = -50 * PIXELS_PER_METER;
+				if (event.key.key == SDLK_RIGHT)
+					PushForce.xComponent = 50 * PIXELS_PER_METER;
+				if (event.key.key == SDLK_DOWN)
+					PushForce.yComponent = 50 * PIXELS_PER_METER;
+				if (event.key.key == SDLK_LEFT)
+					PushForce.xComponent = -50 * PIXELS_PER_METER;
+				break;
+			case SDL_EVENT_KEY_UP:
+				if (event.key.key == SDLK_UP)
+					PushForce.yComponent = 0;
+				if (event.key.key == SDLK_RIGHT)
+					PushForce.xComponent = 0;
+				if (event.key.key == SDLK_DOWN)
+					PushForce.yComponent = 0;
+				if (event.key.key == SDLK_LEFT)
+					PushForce.xComponent = 0;
+				break;
 			}
 		}
 
@@ -41,9 +72,11 @@ void Tornado_Engine::Sandbox::DrawNow(SDL_Renderer* renderer)
 {
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 
-	//Drawing Code Here Like This:
-	//draw.T_DrawCirleFilled(renderer, particle->Position.xComponent, particle->Position.yComponent, 5);
-	GFX->T_DrawCirleFilled(particle->Position.xComponent, particle->Position.yComponent, particle->Radius);
+	for (auto particle : particles) {
+		//Drawing Code Here Like This:
+		//draw.T_DrawCirleFilled(renderer, particle->Position.xComponent, particle->Position.yComponent, 5);
+		GFX->T_DrawCirleFilled(particle->Position.xComponent, particle->Position.yComponent, particle->Radius);
+	}
 
 	//PHYSICS UPDATES
 	T_UpdatePhysics();
@@ -88,37 +121,55 @@ void Tornado_Engine::Sandbox::T_UpdatePhysics() {
 	particle->Position += particle->Velocity * deltaTime;
 									*/
 
-	//ApplyForce
-	Vectors::Vec2D wind = Vectors::Vec2D(0.2f * PIXELS_PER_METER, 0.0f);
-	particle->T_AddForce(wind);
+	for (auto particle : particles) {
+		//ApplyForce
+		Vectors::Vec2D wind = Vectors::Vec2D(0.2f * PIXELS_PER_METER, 0.0f);
+		particle->T_AddForce(wind);
+	}
+
+	for (auto particle : particles) {
+		//ApplyForce
+		Vectors::Vec2D weight = Vectors::Vec2D(0.0f, particle->Mass * 9.8f * PIXELS_PER_METER);
+		particle->T_AddForce(weight);
+	}
+
+	for (auto particle : particles) {
+		//ApplyForce
+		particle->T_AddForce(PushForce);
+	}
+
 
 	//HERE THE ACCELERATION IS 9.8 WHICH IS ACTUALLY THE CHANGE IN VELOCITY PER SECOND OR UNIT TIME, SO, HERE IN EACH FRAME WE ARE ACTUALLY UPDATING OUR VELOCITY BASED ON ACCELERATION.
-	particle->T_EulerIntegrate(deltaTime);
-
-	//BOUND THE PARTICLE INSIDE THE WINDOW
-	if (particle->Position.xComponent - particle->Radius <= 0) {
-		particle->Position.xComponent = particle->Radius;
-		particle->Velocity.xComponent *= -0.7f;
-	}
-	else if (particle->Position.xComponent + particle->Radius >= GFX->T_GetWidth()) {
-		particle->Position.xComponent = GFX->T_GetWidth() - particle->Radius;
-		particle->Velocity *= -0.7f;
+	for (auto particle : particles) {
+		particle->T_EulerIntegrate(deltaTime);
 	}
 
-	if (particle->Position.yComponent - particle->Radius <= 0) {
-		particle->Position.yComponent = particle->Radius;
-		particle->Velocity.yComponent *= -0.7f;
-	}
-	else if (particle->Position.yComponent + particle->Radius >= GFX->T_GetHeight()) {
-		particle->Position.yComponent = GFX->T_GetHeight() - particle->Radius;
-		particle->Velocity.yComponent *= -0.7f;
+	for (auto particle : particles) {
+		//BOUND THE PARTICLE INSIDE THE WINDOW
+		if (particle->Position.xComponent - particle->Radius <= 0) {
+			particle->Position.xComponent = particle->Radius;
+			particle->Velocity.xComponent *= -0.7f;
+		}
+		else if (particle->Position.xComponent + particle->Radius >= GFX->T_GetWidth()) {
+			particle->Position.xComponent = GFX->T_GetWidth() - particle->Radius;
+			particle->Velocity *= -0.7f;
+		}
+
+		if (particle->Position.yComponent - particle->Radius <= 0) {
+			particle->Position.yComponent = particle->Radius;
+			particle->Velocity.yComponent *= -0.7f;
+		}
+		else if (particle->Position.yComponent + particle->Radius >= GFX->T_GetHeight()) {
+			particle->Position.yComponent = GFX->T_GetHeight() - particle->Radius;
+			particle->Velocity.yComponent *= -0.7f;
+		}
 	}
 }
 
 
 void Tornado_Engine::Sandbox::T_OneTimePhysicsSetup() {
 	//ONE TIME PHYSICS UPDATES
-	particle->Velocity = Vectors::Vec2D(0.0f, 0.0f);
-	particle->Acceleration = Vectors::Vec2D(0.0f, 0.0f);
-	particle->Radius = 4;
+	//particle->Velocity = Vectors::Vec2D(0.0f, 0.0f);
+	//particle->Acceleration = Vectors::Vec2D(0.0f, 0.0f);
+	PushForce = Vectors::Vec2D(0.0f, 0.0f);
 }
