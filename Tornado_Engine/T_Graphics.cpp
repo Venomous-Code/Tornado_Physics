@@ -89,6 +89,19 @@ void T_Graphics::Graphics::T_DrawPolygon(int x, int y, const std::vector<Vectors
 	T_DrawCirleFilled(x, y, 1);
 }
 
+void T_Graphics::Graphics::T_DrawRectangle(int xPos, int yPos, int Width, int Height)
+{
+	T_DrawLine(xPos - Width / 2.0f, yPos - Height / 2.0f, xPos + Width / 2.0f, yPos - Height / 2.0f);
+	T_DrawLine( xPos + Width / 2.0f, yPos - Height / 2.0f, xPos + Width / 2.0f, yPos + Height / 2.0f);
+	T_DrawLine( xPos + Width / 2.0f, yPos + Height / 2.0f, xPos - Width / 2.0f, yPos + Height / 2.0f);
+	T_DrawLine( xPos - Width / 2.0f, yPos + Height / 2.0f, xPos - Width / 2.0f, yPos - Height / 2.0f);
+}
+
+void T_Graphics::Graphics::T_DrawRectangleFilled(int xPos, int yPos, int Width, int Height)
+{
+
+}
+
 int T_Graphics::Graphics::T_GetWidth()
 {
 	int WindowWidth = 0;

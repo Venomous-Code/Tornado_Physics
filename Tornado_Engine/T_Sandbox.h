@@ -1,6 +1,7 @@
 #pragma once
 #include "T_Graphics.h"
-#include "TParticle.h"
+#include "T_Body.h"
+#include "Force.h"
 
 namespace Tornado_Engine {
 	class Sandbox
@@ -19,15 +20,22 @@ namespace Tornado_Engine {
 	private:
 		Vectors::Vec2D* vec2;
 		T_Graphics::Graphics* GFX;
-		Particle_Physics::TParticle* SmallBall;
-		Particle_Physics::TParticle* BigBall;
+		Body_Physics::T_Body* SmallBall;
+		Body_Physics::T_Body* BigBall;
 		Vectors::Vec2D PushForce;
+		SDL_Rect Fluid;
+		Vectors::Vec2D mouseCursor;
+		
+		Vectors::Vec2D Anchor = Vectors::Vec2D(0.0f, 0.0f);
+		float K = 100.0f;
+		float RestLength = 200.0f;
 
 		//DATA MEMBERS
 		bool WindowShouldClose = false;
+		bool LeftMouseButtonDown = false;
 		uint32_t timePreviousFrame;
 
 		//VECTORS
-		std::vector<Particle_Physics::TParticle*> particles;
+		std::vector<Body_Physics::T_Body*> bodies;
 	};
 }

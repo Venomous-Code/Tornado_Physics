@@ -1,16 +1,27 @@
 #include "T_Sandbox.h"
 #include "Constants.h"
+#include "T_Shape.h"
 
 Tornado_Engine::Sandbox::Sandbox()
 {
 	vec2 = new Vectors::Vec2D(10, 25);
 	GFX = new T_Graphics::Graphics;
-	/*SmallBall = new Particle_Physics::TParticle(150, 25, 1.0f);
+	/*SmallBall = new Body_Physics::T_Body(150, 125, 1.0f);
 	SmallBall->Radius = 4;
-	particles.push_back(SmallBall);*/
-	BigBall = new Particle_Physics::TParticle(200, 25, 3.0f);
-	BigBall->Radius = 12;
-	particles.push_back(BigBall);
+	bodies.push_back(SmallBall);
+	BigBall = new Body_Physics::T_Body(200, 135, 20.0f);
+	BigBall->Radius = 20;
+	bodies.push_back(BigBall);*/
+	//mouseCursor = new Vectors::Vec2D(0.0f, 0.0f);
+
+	//Anchor = Vectors::Vec2D(200.0f, 30.0f);
+	Body_Physics::T_Body* Bob = new Body_Physics::T_Body(T_GraphicsModule::CircleShape(50), GFX->T_GetWidth() / 2.0f, GFX->T_GetHeight() / 2.0f, 2.0f);
+	bodies.push_back(Bob);
+
+	Fluid.x = 720;
+	Fluid.y = 667;
+	Fluid.w = 1440;
+	Fluid.h = 400;
 }
 
 Tornado_Engine::Sandbox::~Sandbox()
@@ -18,8 +29,8 @@ Tornado_Engine::Sandbox::~Sandbox()
 	//DELETE THE INSTANCES OVER HERE.
 	delete vec2;
 	delete GFX;
-	for (auto particle : particles) {
-		delete particle;
+	for (auto body : bodies) {
+		delete body;
 	}
 	std::cout << "[ALL INSTANCES DESTROYED SUCCESSFULLY.]" << std::endl;
 }
@@ -55,6 +66,27 @@ void Tornado_Engine::Sandbox::T_MainLoop()
 				if (event.key.key == SDLK_LEFT)
 					PushForce.xComponent = 0;
 				break;
+			case SDL_EVENT_MOUSE_MOTION:
+				mouseCursor.xComponent = event.motion.x;
+				mouseCursor.yComponent = event.motion.y;
+				break;
+			case SDL_EVENT_MOUSE_BUTTON_DOWN:
+				if (!LeftMouseButtonDown && event.button.button == SDL_BUTTON_LEFT) {
+					LeftMouseButtonDown = true;
+					float xCursorPos, yCursorPos;
+					SDL_GetMouseState(&xCursorPos, &yCursorPos);
+					mouseCursor.xComponent = xCursorPos;
+					mouseCursor.yComponent = yCursorPos;
+				}
+				break;
+			case SDL_EVENT_MOUSE_BUTTON_UP:
+				if (LeftMouseButtonDown && event.button.button == SDL_BUTTON_LEFT) {
+					LeftMouseButtonDown = false;
+					Vectors::Vec2D ImpulseDirection = (bodies[0]->Position - mouseCursor).Vec2DUnitVector();
+					float impulseMagnitude = (bodies[0]->Position - mouseCursor).Vec2DMagnitude() * 5.0f;
+					bodies[0]->Velocity = ImpulseDirection * impulseMagnitude;
+				}
+				break;
 			}
 		}
 
@@ -72,11 +104,26 @@ void Tornado_Engine::Sandbox::DrawNow(SDL_Renderer* renderer)
 {
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 
-	for (auto particle : particles) {
 		//Drawing Code Here Like This:
-		//draw.T_DrawCirleFilled(renderer, particle->Position.xComponent, particle->Position.yComponent, 5);
-		GFX->T_DrawCirleFilled(particle->Position.xComponent, particle->Position.yComponent, particle->Radius);
+		//draw.T_DrawCirleFilled(renderer, body->Position.xComponent, body->Position.yComponent, 5);
+	
+	//DRAW LINE
+	/*GFX->T_DrawLine(Anchor.xComponent, Anchor.yComponent, bodies[0]->Position.xComponent, bodies[0]->Position.yComponent);*/
+	//DRAW ANCHOR
+	//GFX->T_DrawCirleFilled(Anchor.xComponent, Anchor.yComponent, 5);
+	//DRAW Bob
+	if (bodies[0]->shape->GetType() == CIRCLE) {
+		T_GraphicsModule::CircleShape* circleShape = (T_GraphicsModule::CircleShape*)bodies[0]->shape;
+		GFX->T_DrawCircle(bodies[0]->Position.xComponent, bodies[0]->Position.yComponent, circleShape->Radius);
 	}
+
+	/*GFX->T_DrawCirleFilled(bodies[0]->Position.xComponent, bodies[0]->Position.yComponent, bodies[0]->Radius);
+	GFX->T_DrawCirleFilled(bodies[1]->Position.xComponent, bodies[1]->Position.yComponent, bodies[1]->Radius);*/
+
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+	/*GFX->T_DrawRectangle(720, 667, 1440, 400);*/
+	//							435							720
+	GFX->T_DrawRectangle(Fluid.x, Fluid.y , Fluid.w, Fluid.h);
 
 	//PHYSICS UPDATES
 	T_UpdatePhysics();
@@ -113,55 +160,71 @@ void Tornado_Engine::Sandbox::T_UpdatePhysics() {
 	
 
 	//Update Position According To Velocity
-	/*particle->Position.xComponent += particle->Velocity.xComponent;
-	particle->Position.yComponent += particle->Velocity.yComponent;
+	/*body->Position.xComponent += body->Velocity.xComponent;
+	body->Position.yComponent += body->Velocity.yComponent;
 									OR 
-	particle->Position.Vec2DAddition(particle->Velocity);
+	body->Position.Vec2DAddition(body->Velocity);
 									OR
-	particle->Position += particle->Velocity * deltaTime;
+	body->Position += body->Velocity * deltaTime;
 									*/
+	//ADD FORCES
+	for (auto body : bodies) {
+		//Apply Wind Force
+		/*Vectors::Vec2D wind = Vectors::Vec2D(0.2f * PIXELS_PER_METER, 0.0f);
+		body->T_AddForce(wind);*/
+		//Apply Weight Force
+		Vectors::Vec2D weight = Vectors::Vec2D(0.0f, body->Mass * 9.8f * PIXELS_PER_METER);
+		body->T_AddForce(weight);
+		//Apply Push Force
+		body->T_AddForce(PushForce);
 
-	for (auto particle : particles) {
-		//ApplyForce
-		Vectors::Vec2D wind = Vectors::Vec2D(0.2f * PIXELS_PER_METER, 0.0f);
-		particle->T_AddForce(wind);
-	}
+		//Generate Drag Force
+		/*if (body->Position.yComponent >= Fluid.y) {*/
+		Vectors::Vec2D drag = T_Physics::T_Force::T_GenerateDragForce(*body, 0.001f);
+		body->T_AddForce(drag);
 
-	for (auto particle : particles) {
-		//ApplyForce
-		Vectors::Vec2D weight = Vectors::Vec2D(0.0f, particle->Mass * 9.8f * PIXELS_PER_METER);
-		particle->T_AddForce(weight);
-	}
+			//Generate Friction Force
+		Vectors::Vec2D Friction = T_Physics::T_Force::T_GenerateFrictionForce(*body, 3.0f * PIXELS_PER_METER);
+		body->T_AddForce(Friction);
+		//}
 
-	for (auto particle : particles) {
-		//ApplyForce
-		particle->T_AddForce(PushForce);
-	}
+		// Generate Gravitational Attraction Force
+		/*Vectors::Vec2D Attraction = T_Physics::T_Force::T_GenerateGravitationalForce(*bodies[0], *bodies[1], 1000.0f, 5.0f, 100.0f);
+		bodies[0]->T_AddForce(Attraction);
+		bodies[1]->T_AddForce(-Attraction);*/
+
+		/*Vectors::Vec2D SpringForce = T_Physics::T_Force::T_GenerateSpringForce(*bodies[0], Anchor, RestLength, K);
+		bodies[0]->T_AddForce(SpringForce);*/
 
 
-	//HERE THE ACCELERATION IS 9.8 WHICH IS ACTUALLY THE CHANGE IN VELOCITY PER SECOND OR UNIT TIME, SO, HERE IN EACH FRAME WE ARE ACTUALLY UPDATING OUR VELOCITY BASED ON ACCELERATION.
-	for (auto particle : particles) {
-		particle->T_EulerIntegrate(deltaTime);
-	}
 
-	for (auto particle : particles) {
-		//BOUND THE PARTICLE INSIDE THE WINDOW
-		if (particle->Position.xComponent - particle->Radius <= 0) {
-			particle->Position.xComponent = particle->Radius;
-			particle->Velocity.xComponent *= -0.7f;
+		//HERE THE ACCELERATION IS 9.8 WHICH IS ACTUALLY THE CHANGE IN VELOCITY PER SECOND OR UNIT TIME, SO, HERE IN EACH FRAME WE ARE ACTUALLY UPDATING OUR VELOCITY BASED ON ACCELERATION.
+		for (auto body : bodies) {
+			body->T_EulerIntegrate(deltaTime);
 		}
-		else if (particle->Position.xComponent + particle->Radius >= GFX->T_GetWidth()) {
-			particle->Position.xComponent = GFX->T_GetWidth() - particle->Radius;
-			particle->Velocity *= -0.7f;
-		}
 
-		if (particle->Position.yComponent - particle->Radius <= 0) {
-			particle->Position.yComponent = particle->Radius;
-			particle->Velocity.yComponent *= -0.7f;
-		}
-		else if (particle->Position.yComponent + particle->Radius >= GFX->T_GetHeight()) {
-			particle->Position.yComponent = GFX->T_GetHeight() - particle->Radius;
-			particle->Velocity.yComponent *= -0.7f;
+		for (auto body : bodies) {
+			//BOUND THE PARTICLE INSIDE THE WINDOW
+			if (body->shape->GetType() == CIRCLE) {
+				T_GraphicsModule::CircleShape* circleShape = (T_GraphicsModule::CircleShape*) body->shape;
+				if (body->Position.xComponent - circleShape->Radius <= 0) {
+					body->Position.xComponent = circleShape->Radius;
+					body->Velocity.xComponent *= -0.7f;
+				}
+				else if (body->Position.xComponent + circleShape->Radius >= GFX->T_GetWidth()) {
+					body->Position.xComponent = GFX->T_GetWidth() - circleShape->Radius;
+					body->Velocity *= -0.7f;
+				}
+
+				if (body->Position.yComponent - circleShape->Radius <= 0) {
+					body->Position.yComponent = circleShape->Radius;
+					body->Velocity.yComponent *= -0.7f;
+				}
+				else if (body->Position.yComponent + circleShape->Radius >= GFX->T_GetHeight()) {
+					body->Position.yComponent = GFX->T_GetHeight() - circleShape->Radius;
+					body->Velocity.yComponent *= -0.7f;
+				}
+			}
 		}
 	}
 }
@@ -169,7 +232,7 @@ void Tornado_Engine::Sandbox::T_UpdatePhysics() {
 
 void Tornado_Engine::Sandbox::T_OneTimePhysicsSetup() {
 	//ONE TIME PHYSICS UPDATES
-	//particle->Velocity = Vectors::Vec2D(0.0f, 0.0f);
-	//particle->Acceleration = Vectors::Vec2D(0.0f, 0.0f);
+	//body->Velocity = Vectors::Vec2D(0.0f, 0.0f);
+	//body->Acceleration = Vectors::Vec2D(0.0f, 0.0f);
 	PushForce = Vectors::Vec2D(0.0f, 0.0f);
 }
