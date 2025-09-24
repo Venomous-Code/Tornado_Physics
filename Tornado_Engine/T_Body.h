@@ -2,6 +2,7 @@
 #include "Vectors.h"
 #include <iostream>
 #include "T_Shape.h"
+#include <math.h>
 
 namespace Body_Physics {
 	class T_Body
@@ -21,6 +22,8 @@ namespace Body_Physics {
 		void T_ClearForces();
 		void T_ClearTorque();
 		void T_Update(float dt);
+		void T_ApplyImpulse(const Vectors::Vec2D j);
+		bool T_IsStatic() const;
 
 		//Linear Transformations
 		Vectors::Vec2D Position;
@@ -43,6 +46,9 @@ namespace Body_Physics {
 		float invI;
 		
 		bool isColliding = false;
+
+		float Restitution;
+
 
 	private:
 

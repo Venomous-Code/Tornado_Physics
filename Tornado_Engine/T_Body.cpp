@@ -11,6 +11,7 @@ Body_Physics::T_Body::T_Body(const T_GraphicsModule::T_Shape& shape,int x, int y
 	this->angularAcceleration = 0.0f;
 	this->NetForces = Vectors::Vec2D(0.0f, 0.0f);
 	this->NetTorque = 0.0f;
+	this->Restitution = 1.0f;
 	this->Mass = Mass;
 	if (Mass != 0.0f) {
 		this->invMass = 1.0f / Mass;
@@ -34,6 +35,9 @@ Body_Physics::T_Body::~T_Body()
 
 void Body_Physics::T_Body::T_EulerIntegrateLinear(float dt)
 {
+	if (T_IsStatic()) {
+		return;
+	}
 	Acceleration = NetForces * invMass;
 	Velocity += Acceleration * dt;
 	Position += Velocity * dt;
@@ -41,6 +45,10 @@ void Body_Physics::T_Body::T_EulerIntegrateLinear(float dt)
 }
 
 void Body_Physics::T_Body::T_EulerIntegrateAngular(float dt) {
+
+	if (T_IsStatic()) {
+		return;
+	}
 	angularAcceleration = NetTorque * invI;
 	angularVelocity += angularAcceleration * dt;
 	Rotation += angularVelocity * dt;
@@ -74,4 +82,18 @@ void Body_Physics::T_Body::T_Update(float dt)
 		T_GraphicsModule::PolygonShape* polygonShape = (T_GraphicsModule::PolygonShape* )shape;
 		polygonShape->updateVertices(Rotation, Position);
 	}
+}
+
+void Body_Physics::T_Body::T_ApplyImpulse(const Vectors::Vec2D j)
+{
+	if (T_IsStatic()) {
+		return;
+	}
+	Velocity += j * invMass;
+}
+
+bool Body_Physics::T_Body::T_IsStatic() const
+{
+	const float Epsilon = 0.005f;
+	return fabs(invMass - 0.0f) < Epsilon;
 }

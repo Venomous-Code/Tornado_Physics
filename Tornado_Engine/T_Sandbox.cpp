@@ -20,8 +20,8 @@ Tornado_Engine::Sandbox::Sandbox()
 	int xPosition = WINDOWWIDTH / 2;
 	int yPosition = WINDOWHEIGHT / 2;
 
-	Body_Physics::T_Body* Bigball = new Body_Physics::T_Body(T_GraphicsModule::CircleShape(100), 100, 100, 1.0f);
-	Body_Physics::T_Body* Smallball = new Body_Physics::T_Body(T_GraphicsModule::CircleShape(50), 500, 100, 1.0f);
+	Body_Physics::T_Body* Bigball = new Body_Physics::T_Body(T_GraphicsModule::CircleShape(200), WINDOWWIDTH/2.0, WINDOWHEIGHT/2.0, 0.0);
+	Body_Physics::T_Body* Smallball = new Body_Physics::T_Body(T_GraphicsModule::CircleShape(50), 100, 50, 1.0);
 
 	//Body_Physics::T_Body* Bob = new Body_Physics::T_Body(T_GraphicsModule::CircleShape(50.0f), xPosition, yPosition, 2.0f);
 
@@ -80,7 +80,7 @@ void Tornado_Engine::Sandbox::T_MainLoop()
 				mouseCursor.xComponent = event.motion.x;
 				mouseCursor.yComponent = event.motion.y;
 				break;
-			case SDL_EVENT_MOUSE_BUTTON_DOWN:
+			/*case SDL_EVENT_MOUSE_BUTTON_DOWN:
 				if (!LeftMouseButtonDown && event.button.button == SDL_BUTTON_LEFT) {
 					LeftMouseButtonDown = true;
 					float xCursorPos, yCursorPos;
@@ -88,15 +88,22 @@ void Tornado_Engine::Sandbox::T_MainLoop()
 					mouseCursor.xComponent = xCursorPos;
 					mouseCursor.yComponent = yCursorPos;
 				}
+				break;*/
+			case SDL_EVENT_MOUSE_BUTTON_DOWN:
+				float xPos, yPos;
+				SDL_GetMouseState(&xPos, &yPos);
+				Body_Physics::T_Body* smallBall = new Body_Physics::T_Body(T_GraphicsModule::CircleShape(50), xPos, yPos, 1.0);
+				smallBall->Restitution = 0.2f;
+				bodies.push_back(smallBall);
 				break;
-			case SDL_EVENT_MOUSE_BUTTON_UP:
+			/*case SDL_EVENT_MOUSE_BUTTON_UP:
 				if (LeftMouseButtonDown && event.button.button == SDL_BUTTON_LEFT) {
 					LeftMouseButtonDown = false;
 					Vectors::Vec2D ImpulseDirection = (bodies[0]->Position - mouseCursor).Vec2DUnitVector();
 					float impulseMagnitude = (bodies[0]->Position - mouseCursor).Vec2DMagnitude() * 5.0f;
 					bodies[0]->Velocity = ImpulseDirection * impulseMagnitude;
 				}
-				break;
+				break;*/
 			}
 		}
 
@@ -124,11 +131,9 @@ void Tornado_Engine::Sandbox::DrawNow(SDL_Renderer* renderer)
 	//DRAW Bob
 	for(auto body:bodies){
 
-		body->isColliding ? std::cout << "Colliding" << std::endl : std::cout << "No Collision" << std::endl;
-
 		if (body->shape->GetType() == CIRCLE) {
 			T_GraphicsModule::CircleShape* circleShape = (T_GraphicsModule::CircleShape*)body->shape;
-			GFX->T_DrawCircle(body->Position.xComponent, body->Position.yComponent, circleShape->Radius, body->Rotation);
+			GFX->T_DrawCirleFilled(body->Position.xComponent, body->Position.yComponent, circleShape->Radius);
 			/*RotationAngle += 15.0f;*/
 		}
 		if (body->shape->GetType() == BOX) {
@@ -246,8 +251,15 @@ void Tornado_Engine::Sandbox::T_UpdatePhysics() {
 
 				objectA->isColliding = false;
 				objectB->isColliding = false;
+				T_CollisionDynamics::T_Contact contact;
+				if (T_CollisionDynamics::T_CollisionDetection::T_IsColliding(objectA, objectB, contact)) {
+					//Resolve The Collision Using Impulse Method.
+					contact.T_ResolveCollision();
+					//Here we have the Contact info inside the contact object...
+					GFX->T_DrawCirleFilled(contact._Start.xComponent, contact._Start.yComponent, 3);
+					GFX->T_DrawCirleFilled(contact._End.xComponent, contact._End.yComponent, 3);
+					GFX->T_DrawLine(contact._Start.xComponent, contact._Start.yComponent, contact._Start.xComponent + contact._Normal.xComponent * 15, contact._Start.yComponent + contact._Normal.yComponent * 15);
 
-				if (T_CollisionDynamics::T_CollisionDetection::T_IsColliding(objectA, objectB)) {
 					objectA->isColliding = true;
 					objectB->isColliding = true;
 				}
