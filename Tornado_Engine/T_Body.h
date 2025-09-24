@@ -20,6 +20,7 @@ namespace Body_Physics {
 		void T_AddTorque(float torque);
 		void T_ClearForces();
 		void T_ClearTorque();
+		void T_Update(float dt);
 
 		//Linear Transformations
 		Vectors::Vec2D Position;
@@ -40,6 +41,8 @@ namespace Body_Physics {
 		float invMass;
 		float I;
 		float invI;
+		
+		bool isColliding = false;
 
 	private:
 

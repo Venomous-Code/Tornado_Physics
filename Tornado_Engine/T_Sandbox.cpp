@@ -20,11 +20,13 @@ Tornado_Engine::Sandbox::Sandbox()
 	int xPosition = WINDOWWIDTH / 2;
 	int yPosition = WINDOWHEIGHT / 2;
 
-	Body_Physics::T_Body* Box = new Body_Physics::T_Body(T_GraphicsModule::BoxShape(200,100), xPosition, yPosition, 2.0f);
+	Body_Physics::T_Body* Bigball = new Body_Physics::T_Body(T_GraphicsModule::CircleShape(100), 100, 100, 1.0f);
+	Body_Physics::T_Body* Smallball = new Body_Physics::T_Body(T_GraphicsModule::CircleShape(50), 500, 100, 1.0f);
 
 	//Body_Physics::T_Body* Bob = new Body_Physics::T_Body(T_GraphicsModule::CircleShape(50.0f), xPosition, yPosition, 2.0f);
 
-	bodies.push_back(Box);
+	bodies.push_back(Bigball);
+	bodies.push_back(Smallball);
 
 	/*Fluid.x = 720;
 	Fluid.y = 667;
@@ -120,14 +122,19 @@ void Tornado_Engine::Sandbox::DrawNow(SDL_Renderer* renderer)
 	//DRAW ANCHOR
 	//GFX->T_DrawCirleFilled(Anchor.xComponent, Anchor.yComponent, 5);
 	//DRAW Bob
-	if (bodies[0]->shape->GetType() == CIRCLE) {
-		T_GraphicsModule::CircleShape* circleShape = (T_GraphicsModule::CircleShape*)bodies[0]->shape;
-		GFX->T_DrawCircle(bodies[0]->Position.xComponent, bodies[0]->Position.yComponent, circleShape->Radius, bodies[0]->Rotation);
-		/*RotationAngle += 15.0f;*/
-	}
-	if (bodies[0]->shape->GetType() == BOX) {
-		T_GraphicsModule::BoxShape* boxShape = (T_GraphicsModule::BoxShape*)bodies[0]->shape;
-		GFX->T_DrawPolygon(bodies[0]->Position.xComponent, bodies[0]->Position.yComponent, boxShape->globalVertices);
+	for(auto body:bodies){
+
+		body->isColliding ? std::cout << "Colliding" << std::endl : std::cout << "No Collision" << std::endl;
+
+		if (body->shape->GetType() == CIRCLE) {
+			T_GraphicsModule::CircleShape* circleShape = (T_GraphicsModule::CircleShape*)body->shape;
+			GFX->T_DrawCircle(body->Position.xComponent, body->Position.yComponent, circleShape->Radius, body->Rotation);
+			/*RotationAngle += 15.0f;*/
+		}
+		if (body->shape->GetType() == BOX) {
+			T_GraphicsModule::BoxShape* boxShape = (T_GraphicsModule::BoxShape*)body->shape;
+			GFX->T_DrawPolygon(body->Position.xComponent, body->Position.yComponent, boxShape->globalVertices);
+		}
 	}
 
 	/*GFX->T_DrawCirleFilled(bodies[0]->Position.xComponent, bodies[0]->Position.yComponent, bodies[0]->Radius);
@@ -183,11 +190,11 @@ void Tornado_Engine::Sandbox::T_UpdatePhysics() {
 	//ADD FORCES
 	for (auto body : bodies) {
 		//Apply Wind Force
-		/*Vectors::Vec2D wind = Vectors::Vec2D(0.2f * PIXELS_PER_METER, 0.0f);
-		body->T_AddForce(wind);*/
+		Vectors::Vec2D wind = Vectors::Vec2D(0.2f * PIXELS_PER_METER, 0.0f);
+		body->T_AddForce(wind);
 		//Apply Weight Force
-		//Vectors::Vec2D weight = Vectors::Vec2D(0.0f, body->Mass * 9.8f * PIXELS_PER_METER);
-		//body->T_AddForce(weight);
+		Vectors::Vec2D weight = Vectors::Vec2D(0.0f, body->Mass * 9.8f * PIXELS_PER_METER);
+		body->T_AddForce(weight);
 		//Apply Push Force
 		body->T_AddForce(PushForce);
 
@@ -202,8 +209,8 @@ void Tornado_Engine::Sandbox::T_UpdatePhysics() {
 		//}
 
 		//Add Torque Force
-		float Torque = 20 * PI;
-		body->T_AddTorque(Torque);
+		/*float Torque = 20 * PI;
+		body->T_AddTorque(Torque);*/
 
 
 		// Generate Gravitational Attraction Force
@@ -218,14 +225,35 @@ void Tornado_Engine::Sandbox::T_UpdatePhysics() {
 
 		//HERE THE ACCELERATION IS 9.8 WHICH IS ACTUALLY THE CHANGE IN VELOCITY PER SECOND OR UNIT TIME, SO, HERE IN EACH FRAME WE ARE ACTUALLY UPDATING OUR VELOCITY BASED ON ACCELERATION.
 		for (auto body : bodies) {
-			body->T_EulerIntegrateLinear(deltaTime);
+			/*body->T_EulerIntegrateLinear(deltaTime);
 			body->T_EulerIntegrateAngular(deltaTime);
 			bool isPolygon = body->shape->GetType() == POLYGON || body->shape->GetType() == BOX;
 			if (isPolygon) {
 				T_GraphicsModule::PolygonShape* polygonShape = (T_GraphicsModule::PolygonShape* )body->shape;
 				polygonShape->updateVertices(body->Rotation, body->Position);
+			}*/
+
+			body->T_Update(deltaTime);
+
+		}
+
+		//Check All Rigid Bodies With Other Rigid Bodies For Collision 
+		for (int i = 0; i < bodies.size() - 1; i++) {
+			for (int j = 0; j < bodies.size(); j++) {
+				//TODO... Check Bodies [i] With Bodies [j]
+				Body_Physics::T_Body* objectA = bodies[i];
+				Body_Physics::T_Body* objectB = bodies[j];
+
+				objectA->isColliding = false;
+				objectB->isColliding = false;
+
+				if (T_CollisionDynamics::T_CollisionDetection::T_IsColliding(objectA, objectB)) {
+					objectA->isColliding = true;
+					objectB->isColliding = true;
+				}
 			}
 		}
+
 
 		for (auto body : bodies) {
 			//BOUND THE PARTICLE INSIDE THE WINDOW

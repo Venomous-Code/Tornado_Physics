@@ -1,7 +1,7 @@
 #pragma once
 #include "T_Graphics.h"
-#include "T_Body.h"
 #include "Force.h"
+#include "T_CollisionDynamics.h"
 
 #define WINDOWWIDTH 1440
 #define WINDOWHEIGHT 870

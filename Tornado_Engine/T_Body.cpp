@@ -64,3 +64,14 @@ void Body_Physics::T_Body::T_ClearForces()
 void Body_Physics::T_Body::T_ClearTorque() {
 	NetTorque = 0.0f;
 }
+
+void Body_Physics::T_Body::T_Update(float dt)
+{
+	T_EulerIntegrateLinear(dt);
+	T_EulerIntegrateAngular(dt);
+	bool isPolygon = shape->GetType() == POLYGON || shape->GetType() == BOX;
+	if (isPolygon) {
+		T_GraphicsModule::PolygonShape* polygonShape = (T_GraphicsModule::PolygonShape* )shape;
+		polygonShape->updateVertices(Rotation, Position);
+	}
+}
