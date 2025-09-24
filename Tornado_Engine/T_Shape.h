@@ -16,6 +16,7 @@ namespace T_GraphicsModule {
 		virtual ~T_Shape();
 		virtual ShapeType GetType() const = 0;
 		virtual T_Shape* Clone() const = 0;
+		virtual float getMomentOfInertia() const = 0;
 	private:
 
 	};
@@ -28,18 +29,23 @@ namespace T_GraphicsModule {
 		virtual ~CircleShape();
 		ShapeType GetType() const override;
 		T_Shape* Clone() const override;
+		float getMomentOfInertia() const override;
 
 	private:
 	};
 
 	class PolygonShape : public T_Shape {
 	public:
-		std::vector<Vectors::Vec2D> vertices;
+		std::vector<Vectors::Vec2D> localVertices;
+		std::vector<Vectors::Vec2D> globalVertices;
+
 		PolygonShape();
 		PolygonShape(const std::vector<Vectors::Vec2D> vertices);
 		virtual ~PolygonShape();
 		ShapeType GetType() const override;
 		T_Shape* Clone() const override;
+		float getMomentOfInertia() const override;
+		void updateVertices(float Angle, const Vectors::Vec2D& Position);
 	private:
 
 	};
@@ -53,6 +59,7 @@ namespace T_GraphicsModule {
 		virtual ~BoxShape();
 		ShapeType GetType() const override;
 		T_Shape* Clone() const override;
+		float getMomentOfInertia() const override;
 	private:
 	};
 }

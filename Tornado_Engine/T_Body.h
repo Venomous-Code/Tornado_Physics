@@ -8,23 +8,39 @@ namespace Body_Physics {
 	{
 	public:
 		
-		T_GraphicsModule::T_Shape* shape = NULL;
+		T_GraphicsModule::T_Shape* shape = nullptr;
 
 		T_Body(const T_GraphicsModule::T_Shape& shape, int x, int y, float Mass);
 		~T_Body();
 
 
-		void T_EulerIntegrate(float dt);
+		void T_EulerIntegrateLinear(float dt);
+		void T_EulerIntegrateAngular(float dt);
 		void T_AddForce(const Vectors::Vec2D& force);
+		void T_AddTorque(float torque);
 		void T_ClearForces();
+		void T_ClearTorque();
 
+		//Linear Transformations
 		Vectors::Vec2D Position;
 		Vectors::Vec2D Velocity;
-		Vectors::Vec2D Acceleration;
-		Vectors::Vec2D NetForces;
+		Vectors::Vec2D Acceleration;		
+		
+		//Angular Transformations
+		float Rotation;
+		float angularVelocity;
+		float angularAcceleration;
 
+		//Forces & Torque
+		Vectors::Vec2D NetForces;
+		float NetTorque;
+		
+		// Mass & Moment of Inertia
 		float Mass;
 		float invMass;
+		float I;
+		float invI;
+
 	private:
 
 	};

@@ -3,6 +3,9 @@
 #include "T_Body.h"
 #include "Force.h"
 
+#define WINDOWWIDTH 1440
+#define WINDOWHEIGHT 870
+
 namespace Tornado_Engine {
 	class Sandbox
 	{
@@ -20,15 +23,16 @@ namespace Tornado_Engine {
 	private:
 		Vectors::Vec2D* vec2;
 		T_Graphics::Graphics* GFX;
-		Body_Physics::T_Body* SmallBall;
-		Body_Physics::T_Body* BigBall;
+		//Body_Physics::T_Body* SmallBall;
+		//Body_Physics::T_Body* BigBall;
 		Vectors::Vec2D PushForce;
-		SDL_Rect Fluid;
+		//SDL_Rect Fluid;
 		Vectors::Vec2D mouseCursor;
 		
-		Vectors::Vec2D Anchor = Vectors::Vec2D(0.0f, 0.0f);
+		//Vectors::Vec2D Anchor = Vectors::Vec2D(0.0f, 0.0f);
 		float K = 100.0f;
 		float RestLength = 200.0f;
+		/*float RotationAngle = 0.0f;*/
 
 		//DATA MEMBERS
 		bool WindowShouldClose = false;

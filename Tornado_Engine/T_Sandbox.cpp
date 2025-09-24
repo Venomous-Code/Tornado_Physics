@@ -15,13 +15,21 @@ Tornado_Engine::Sandbox::Sandbox()
 	//mouseCursor = new Vectors::Vec2D(0.0f, 0.0f);
 
 	//Anchor = Vectors::Vec2D(200.0f, 30.0f);
-	Body_Physics::T_Body* Bob = new Body_Physics::T_Body(T_GraphicsModule::CircleShape(50), GFX->T_GetWidth() / 2.0f, GFX->T_GetHeight() / 2.0f, 2.0f);
-	bodies.push_back(Bob);
+	//Body_Physics::T_Body* Box = new Body_Physics::T_Body(T_GraphicsModule::BoxShape(200,100), (GFX->T_GetWidth()/2.0f), (GFX->T_GetHeight()/2.0f), 2.0f);
 
-	Fluid.x = 720;
+	int xPosition = WINDOWWIDTH / 2;
+	int yPosition = WINDOWHEIGHT / 2;
+
+	Body_Physics::T_Body* Box = new Body_Physics::T_Body(T_GraphicsModule::BoxShape(200,100), xPosition, yPosition, 2.0f);
+
+	//Body_Physics::T_Body* Bob = new Body_Physics::T_Body(T_GraphicsModule::CircleShape(50.0f), xPosition, yPosition, 2.0f);
+
+	bodies.push_back(Box);
+
+	/*Fluid.x = 720;
 	Fluid.y = 667;
 	Fluid.w = 1440;
-	Fluid.h = 400;
+	Fluid.h = 400;*/
 }
 
 Tornado_Engine::Sandbox::~Sandbox()
@@ -114,7 +122,12 @@ void Tornado_Engine::Sandbox::DrawNow(SDL_Renderer* renderer)
 	//DRAW Bob
 	if (bodies[0]->shape->GetType() == CIRCLE) {
 		T_GraphicsModule::CircleShape* circleShape = (T_GraphicsModule::CircleShape*)bodies[0]->shape;
-		GFX->T_DrawCircle(bodies[0]->Position.xComponent, bodies[0]->Position.yComponent, circleShape->Radius);
+		GFX->T_DrawCircle(bodies[0]->Position.xComponent, bodies[0]->Position.yComponent, circleShape->Radius, bodies[0]->Rotation);
+		/*RotationAngle += 15.0f;*/
+	}
+	if (bodies[0]->shape->GetType() == BOX) {
+		T_GraphicsModule::BoxShape* boxShape = (T_GraphicsModule::BoxShape*)bodies[0]->shape;
+		GFX->T_DrawPolygon(bodies[0]->Position.xComponent, bodies[0]->Position.yComponent, boxShape->globalVertices);
 	}
 
 	/*GFX->T_DrawCirleFilled(bodies[0]->Position.xComponent, bodies[0]->Position.yComponent, bodies[0]->Radius);
@@ -123,7 +136,7 @@ void Tornado_Engine::Sandbox::DrawNow(SDL_Renderer* renderer)
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	/*GFX->T_DrawRectangle(720, 667, 1440, 400);*/
 	//							435							720
-	GFX->T_DrawRectangle(Fluid.x, Fluid.y , Fluid.w, Fluid.h);
+	//GFX->T_DrawRectangle(Fluid.x, Fluid.y , Fluid.w, Fluid.h);
 
 	//PHYSICS UPDATES
 	T_UpdatePhysics();
@@ -134,7 +147,7 @@ void Tornado_Engine::Sandbox::DrawNow(SDL_Renderer* renderer)
 void Tornado_Engine::Sandbox::T_Update()
 {
 	// ANY ONETIME COMMAND CAN BE TYPED HERE.
-	GFX->T_GraphicsInit("TORNADO_ENGINE", 1440, 870, SDL_WINDOW_MAXIMIZED);
+	GFX->T_GraphicsInit("TORNADO_ENGINE", WINDOWWIDTH, WINDOWHEIGHT, SDL_WINDOW_MAXIMIZED);
 	GFX->T_CreateRenderer();
 
 	//PHYSICS ONETIME
@@ -173,8 +186,8 @@ void Tornado_Engine::Sandbox::T_UpdatePhysics() {
 		/*Vectors::Vec2D wind = Vectors::Vec2D(0.2f * PIXELS_PER_METER, 0.0f);
 		body->T_AddForce(wind);*/
 		//Apply Weight Force
-		Vectors::Vec2D weight = Vectors::Vec2D(0.0f, body->Mass * 9.8f * PIXELS_PER_METER);
-		body->T_AddForce(weight);
+		//Vectors::Vec2D weight = Vectors::Vec2D(0.0f, body->Mass * 9.8f * PIXELS_PER_METER);
+		//body->T_AddForce(weight);
 		//Apply Push Force
 		body->T_AddForce(PushForce);
 
@@ -188,6 +201,11 @@ void Tornado_Engine::Sandbox::T_UpdatePhysics() {
 		body->T_AddForce(Friction);
 		//}
 
+		//Add Torque Force
+		float Torque = 20 * PI;
+		body->T_AddTorque(Torque);
+
+
 		// Generate Gravitational Attraction Force
 		/*Vectors::Vec2D Attraction = T_Physics::T_Force::T_GenerateGravitationalForce(*bodies[0], *bodies[1], 1000.0f, 5.0f, 100.0f);
 		bodies[0]->T_AddForce(Attraction);
@@ -200,7 +218,13 @@ void Tornado_Engine::Sandbox::T_UpdatePhysics() {
 
 		//HERE THE ACCELERATION IS 9.8 WHICH IS ACTUALLY THE CHANGE IN VELOCITY PER SECOND OR UNIT TIME, SO, HERE IN EACH FRAME WE ARE ACTUALLY UPDATING OUR VELOCITY BASED ON ACCELERATION.
 		for (auto body : bodies) {
-			body->T_EulerIntegrate(deltaTime);
+			body->T_EulerIntegrateLinear(deltaTime);
+			body->T_EulerIntegrateAngular(deltaTime);
+			bool isPolygon = body->shape->GetType() == POLYGON || body->shape->GetType() == BOX;
+			if (isPolygon) {
+				T_GraphicsModule::PolygonShape* polygonShape = (T_GraphicsModule::PolygonShape* )body->shape;
+				polygonShape->updateVertices(body->Rotation, body->Position);
+			}
 		}
 
 		for (auto body : bodies) {
@@ -211,8 +235,8 @@ void Tornado_Engine::Sandbox::T_UpdatePhysics() {
 					body->Position.xComponent = circleShape->Radius;
 					body->Velocity.xComponent *= -0.7f;
 				}
-				else if (body->Position.xComponent + circleShape->Radius >= GFX->T_GetWidth()) {
-					body->Position.xComponent = GFX->T_GetWidth() - circleShape->Radius;
+				else if (body->Position.xComponent + circleShape->Radius >= WINDOWWIDTH) {
+					body->Position.xComponent = WINDOWWIDTH - circleShape->Radius;
 					body->Velocity *= -0.7f;
 				}
 
@@ -220,8 +244,8 @@ void Tornado_Engine::Sandbox::T_UpdatePhysics() {
 					body->Position.yComponent = circleShape->Radius;
 					body->Velocity.yComponent *= -0.7f;
 				}
-				else if (body->Position.yComponent + circleShape->Radius >= GFX->T_GetHeight()) {
-					body->Position.yComponent = GFX->T_GetHeight() - circleShape->Radius;
+				else if (body->Position.yComponent + circleShape->Radius >= WINDOWHEIGHT) {
+					body->Position.yComponent = WINDOWHEIGHT - circleShape->Radius;
 					body->Velocity.yComponent *= -0.7f;
 				}
 			}
