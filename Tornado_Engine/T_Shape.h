@@ -2,6 +2,7 @@
 #include "Vectors.h"
 #include <vector>
 #include <iostream>
+#include <limits>
 
 enum ShapeType {
 	CIRCLE,
@@ -46,6 +47,8 @@ namespace T_GraphicsModule {
 		T_Shape* Clone() const override;
 		float getMomentOfInertia() const override;
 		void updateVertices(float Angle, const Vectors::Vec2D& Position);
+		float T_FindMinimumSeparation(const T_GraphicsModule::PolygonShape* other, Vectors::Vec2D& axis, Vectors::Vec2D& point) const;
+		Vectors::Vec2D EdgeAt(int index) const;
 	private:
 
 	};

@@ -4,10 +4,18 @@ bool T_CollisionDynamics::T_CollisionDetection::T_IsColliding(Body_Physics::T_Bo
 {
 	bool aIsCircle = objectA->shape->GetType() == CIRCLE;
 	bool bIsCircle = objectB->shape->GetType() == CIRCLE;
+	bool aIsPolygon = objectA->shape->GetType() == POLYGON || objectA->shape->GetType() == BOX;
+	bool bIsPolygon = objectB->shape->GetType() == POLYGON || objectB->shape->GetType() == BOX;
 
 	if (aIsCircle && bIsCircle) {
 		return T_IsCollidingCircleCircle(objectA, objectB, contact);
 	}
+
+	if (aIsPolygon && bIsPolygon) {
+		return T_IsCollidingPolygonPolygon(objectA, objectB, contact);
+	}
+
+	return false;
 }
 
 bool T_CollisionDynamics::T_CollisionDetection::T_IsCollidingCircleCircle(Body_Physics::T_Body* objectA, Body_Physics::T_Body* objectB, T_Contact& contact)
@@ -36,6 +44,26 @@ bool T_CollisionDynamics::T_CollisionDetection::T_IsCollidingCircleCircle(Body_P
 	contact._Depth = (contact._End - contact._Start).Vec2DMagnitude();
 
 	//Compute Contact Collision Info.
+
+	return true;
+}
+
+bool T_CollisionDynamics::T_CollisionDetection::T_IsCollidingPolygonPolygon(Body_Physics::T_Body* objectA, Body_Physics::T_Body* objectB, T_Contact& contact)
+{
+	//Find The Separation Between A and B & B And A.
+
+	const T_GraphicsModule::PolygonShape* aPolygonShape = (T_GraphicsModule::PolygonShape*)objectA->shape;
+	const T_GraphicsModule::PolygonShape* bPolygonShape = (T_GraphicsModule::PolygonShape*)objectB->shape;
+
+	Vectors::Vec2D aAxis, bAxis;
+	Vectors::Vec2D aPoint, bPoint;
+
+	float abSeparation = aPolygonShape->T_FindMinimumSeparation(bPolygonShape, aAxis, aPoint);
+	if (abSeparation >= 0)
+		return false;
+	float baSeparation = bPolygonShape->T_FindMinimumSeparation(aPolygonShape, bAxis, bPoint);
+	if (baSeparation >= 0)
+		return false;
 
 	return true;
 }

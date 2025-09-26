@@ -107,3 +107,47 @@ void T_GraphicsModule::PolygonShape::updateVertices(float Angle, const Vectors::
         globalVertices[i] += Position;
     }
 }
+
+float T_GraphicsModule::PolygonShape::T_FindMinimumSeparation(const T_GraphicsModule::PolygonShape* other, Vectors::Vec2D& axis, Vectors::Vec2D& point) const
+{
+    //Compute The Separation Between A and B.
+    float separation = std::numeric_limits<float>::lowest();
+    //TODO:
+       //Step-I Loop All The Vertices of "This" Polygon
+    for (int i = 0; i < this->globalVertices.size(); i++) {
+        Vectors::Vec2D Va = this->globalVertices[i];
+        Vectors::Vec2D normal = this->EdgeAt(i).Vec2DNormal();
+        //Loop All The Vertices of "Other" Polygon
+            //Project The Vertex B Onto The Normal Axis
+            //Keep Track of The Min Separation
+        float minSep = std::numeric_limits<float>::max();
+
+        Vectors::Vec2D minVertex;
+
+        for (int j = 0; j < other->globalVertices.size(); j++) {
+            Vectors::Vec2D Vb = other->globalVertices[j];
+            float proj = (Vb - Va).Vec2D_DotProduct(normal);
+            if (proj < minSep) {
+                minSep = proj;
+                minVertex = Vb;
+            }
+            //minSep = std::min(minSep, (Vb - Va).Vec2D_DotProduct(normal));
+        }
+
+        //separation = std::max(separation, minSep);
+        if (minSep > separation) {
+            separation = minSep;
+            axis = this->EdgeAt(i);
+            point = minVertex;
+        }
+    }
+    //Step-IV Return The Best Separation Out of All The Axis.
+    return separation;
+}
+
+Vectors::Vec2D T_GraphicsModule::PolygonShape::EdgeAt(int index) const
+{
+    int currentVertex = index;
+    int nextVertex = (index + 1) % globalVertices.size();
+    return globalVertices[nextVertex] - globalVertices[currentVertex];
+}
