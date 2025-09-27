@@ -28,7 +28,7 @@ namespace Vectors {
 		Vec2D Vec2DNormal() const;
 
 		float Vec2D_DotProduct(Vec2D& v) const;
-		float Vec2D_CrossProduct(Vec2D& v) const;
+		float Vec2D_CrossProduct(Vec2D v) const;
 
 		//OPERATOR OVERLOADS
 		Vec2D& operator = (const Vec2D& v);

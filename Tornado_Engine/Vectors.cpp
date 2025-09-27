@@ -81,7 +81,7 @@ float Vectors::Vec2D::Vec2D_DotProduct(Vec2D& v) const
 	return (xComponent * v.xComponent) + (yComponent * v.yComponent);
 }
 
-float Vectors::Vec2D::Vec2D_CrossProduct(Vec2D& v) const
+float Vectors::Vec2D::Vec2D_CrossProduct(Vec2D v) const
 {
 	return (xComponent * v.yComponent) - (yComponent * v.xComponent);
 }

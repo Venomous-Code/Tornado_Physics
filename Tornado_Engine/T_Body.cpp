@@ -84,12 +84,21 @@ void Body_Physics::T_Body::T_Update(float dt)
 	}
 }
 
-void Body_Physics::T_Body::T_ApplyImpulse(const Vectors::Vec2D j)
+void Body_Physics::T_Body::T_ApplyImpulse(const Vectors::Vec2D& j)
 {
 	if (T_IsStatic()) {
 		return;
 	}
 	Velocity += j * invMass;
+}
+
+void Body_Physics::T_Body::T_ApplyImpulse(const Vectors::Vec2D& j, const Vectors::Vec2D& r)
+{
+	if (T_IsStatic()) {
+		return;
+	}
+	Velocity += j * invMass;
+	angularVelocity += r.Vec2D_CrossProduct(j) * invI;
 }
 
 bool Body_Physics::T_Body::T_IsStatic() const

@@ -29,18 +29,25 @@ void T_CollisionDynamics::T_Contact::T_ResolveCollision()
 	float E = std::min(objectA->Restitution, objectB->Restitution);
 
 	//Calculate the relative velocity between the two objects.
-	const Vectors::Vec2D Vrel = (objectA->Velocity - objectB->Velocity);
+	//const Vectors::Vec2D Vrel = (objectA->Velocity - objectB->Velocity);
+	
+	Vectors::Vec2D Ra = _End - objectA->Position;
+	Vectors::Vec2D Rb = _Start - objectB->Position;
+	Vectors::Vec2D va = objectA->Velocity + Vectors::Vec2D(-objectA->angularVelocity*Ra.yComponent, objectA->angularVelocity*Ra.xComponent);
+	Vectors::Vec2D vb = objectB->Velocity + Vectors::Vec2D(-objectB->angularVelocity * Rb.yComponent, objectB->angularVelocity * Rb.xComponent);
+
+	const Vectors::Vec2D Vrel = va - vb;
 
 	//Calculate the relative velocity along the normal collision vector.
 	float VrelDotNormal = Vrel.Vec2D_DotProduct(_Normal);
 
 	//Now we proceed to calculate the collision impulse.
 	const Vectors::Vec2D impulseDirection = _Normal;
-	const float impulseMagnitude = -(1 + E) * VrelDotNormal / (objectA->invMass + objectB->invMass);
+	const float impulseMagnitude = -(1 + E) * VrelDotNormal / ((objectA->invMass + objectB->invMass) + Ra.Vec2D_CrossProduct(_Normal) * Ra.Vec2D_CrossProduct(_Normal) * objectA->invI + Rb.Vec2D_CrossProduct(_Normal) * Rb.Vec2D_CrossProduct(_Normal) * objectB->invI);
 
 	Vectors::Vec2D jn = impulseDirection * impulseMagnitude;
 
 	//Apply the impulse vector to both objects in opposite direction
-	objectA->T_ApplyImpulse(jn);
-	objectB->T_ApplyImpulse(-jn);
+	objectA->T_ApplyImpulse(jn, Ra);
+	objectB->T_ApplyImpulse(-jn, Rb);
 }

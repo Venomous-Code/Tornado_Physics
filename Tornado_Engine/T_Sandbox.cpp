@@ -20,26 +20,37 @@ Tornado_Engine::Sandbox::Sandbox()
 	int xPosition = WINDOWWIDTH / 2;
 	int yPosition = WINDOWHEIGHT / 2;
 
-	/*Body_Physics::T_Body* Bigball = new Body_Physics::T_Body(T_GraphicsModule::CircleShape(200), WINDOWWIDTH/2.0, WINDOWHEIGHT/2.0, 0.0);*/
+	Body_Physics::T_Body* Bigball = new Body_Physics::T_Body(T_GraphicsModule::CircleShape(200), WINDOWWIDTH/2.0, WINDOWHEIGHT/2.0, 0.0);
 
-	Body_Physics::T_Body* BoxA = new Body_Physics::T_Body(T_GraphicsModule::BoxShape(200, 200), WINDOWWIDTH / 2.0, WINDOWHEIGHT / 2.0, 0.0);
+	//Body_Physics::T_Body* BoxA = new Body_Physics::T_Body(T_GraphicsModule::BoxShape(200, 200), WINDOWWIDTH / 2.0, WINDOWHEIGHT / 2.0, 0.0);
+
+	Body_Physics::T_Body* Floor = new Body_Physics::T_Body(T_GraphicsModule::BoxShape(1300, 50), 700, 800, 0.0);
+	Body_Physics::T_Body* RightWall = new Body_Physics::T_Body(T_GraphicsModule::BoxShape(50, 600), 1325, 475, 0.0);
+	Body_Physics::T_Body* LeftWall = new Body_Physics::T_Body(T_GraphicsModule::BoxShape(50, 600), 75, 475, 0.0);
 	
 	//Body_Physics::T_Body* BoxB = new Body_Physics::T_Body(T_GraphicsModule::BoxShape(200, 200), WINDOWWIDTH / 2.0, WINDOWHEIGHT / 2.0, 1.0);
 
 	//BoxA->angularVelocity = 0.4f;
 	//BoxB->angularVelocity = 0.1f;
-	BoxA->Rotation = 1.3f;
-	BoxA->Rotation = 2.3f;
+	//BoxA->Rotation = 1.3f;
+	//BoxA->Rotation = 2.3f;
+	Floor->Restitution = 0.2f;
+	Bigball->Rotation = 1.4f;
+	Bigball->Restitution = 0.5f;
 
-	bodies.push_back(BoxA);
+	//bodies.push_back(BoxA);
 	//bodies.push_back(BoxB);
+	bodies.push_back(Floor);
+	bodies.push_back(RightWall);
+	bodies.push_back(LeftWall);
+
 
 	//Body_Physics::T_Body* Smallball = new Body_Physics::T_Body(T_GraphicsModule::CircleShape(50), 100, 50, 1.0);
 
 	//Body_Physics::T_Body* Bob = new Body_Physics::T_Body(T_GraphicsModule::CircleShape(50.0f), xPosition, yPosition, 2.0f);
 
-	/*bodies.push_back(Bigball);
-	bodies.push_back(Smallball);*/
+	bodies.push_back(Bigball);
+	/*bodies.push_back(Smallball); */
 
 	/*Fluid.x = 720;
 	Fluid.y = 667;
@@ -108,12 +119,19 @@ void Tornado_Engine::Sandbox::T_MainLoop()
 					mouseCursor.yComponent = yCursorPos;
 				}
 				break;*/
-			case SDL_EVENT_MOUSE_BUTTON_DOWN:
+			/*case SDL_EVENT_MOUSE_BUTTON_DOWN:
 				float xPos, yPos;
 				SDL_GetMouseState(&xPos, &yPos);
 				Body_Physics::T_Body* smallBox = new Body_Physics::T_Body(T_GraphicsModule::BoxShape(80, 80), xPos, yPos, 1.0);
 				smallBox->Restitution = 0.1f;
 				bodies.push_back(smallBox);
+				break;*/
+			case SDL_EVENT_MOUSE_BUTTON_DOWN:
+				float xPos, yPos;
+				SDL_GetMouseState(&xPos, &yPos);
+				Body_Physics::T_Body* smallBall = new Body_Physics::T_Body(T_GraphicsModule::CircleShape(80), xPos, yPos, 1.0);
+				smallBall->Restitution = 0.1f;
+				bodies.push_back(smallBall);
 				break;
 			/*case SDL_EVENT_MOUSE_BUTTON_UP:
 				if (LeftMouseButtonDown && event.button.button == SDL_BUTTON_LEFT) {
@@ -154,7 +172,7 @@ void Tornado_Engine::Sandbox::DrawNow(SDL_Renderer* renderer)
 
 		if (body->shape->GetType() == CIRCLE) {
 			T_GraphicsModule::CircleShape* circleShape = (T_GraphicsModule::CircleShape*)body->shape;
-			GFX->T_DrawCirleFilled(body->Position.xComponent, body->Position.yComponent, circleShape->Radius);
+			GFX->T_DrawCircle(body->Position.xComponent, body->Position.yComponent, circleShape->Radius, body->Rotation);
 			/*RotationAngle += 15.0f;*/
 		}
 		if (body->shape->GetType() == BOX) {

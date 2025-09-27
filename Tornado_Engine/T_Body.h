@@ -22,7 +22,8 @@ namespace Body_Physics {
 		void T_ClearForces();
 		void T_ClearTorque();
 		void T_Update(float dt);
-		void T_ApplyImpulse(const Vectors::Vec2D j);
+		void T_ApplyImpulse(const Vectors::Vec2D& j);
+		void T_ApplyImpulse(const Vectors::Vec2D& j, const Vectors::Vec2D& r);
 		bool T_IsStatic() const;
 
 		//Linear Transformations
