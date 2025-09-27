@@ -22,15 +22,17 @@ Tornado_Engine::Sandbox::Sandbox()
 
 	/*Body_Physics::T_Body* Bigball = new Body_Physics::T_Body(T_GraphicsModule::CircleShape(200), WINDOWWIDTH/2.0, WINDOWHEIGHT/2.0, 0.0);*/
 
-	Body_Physics::T_Body* BoxA = new Body_Physics::T_Body(T_GraphicsModule::BoxShape(200, 200), WINDOWWIDTH / 2.0, WINDOWHEIGHT / 2.0, 1.0);
+	Body_Physics::T_Body* BoxA = new Body_Physics::T_Body(T_GraphicsModule::BoxShape(200, 200), WINDOWWIDTH / 2.0, WINDOWHEIGHT / 2.0, 0.0);
 	
-	Body_Physics::T_Body* BoxB = new Body_Physics::T_Body(T_GraphicsModule::BoxShape(200, 200), WINDOWWIDTH / 2.0, WINDOWHEIGHT / 2.0, 1.0);
+	//Body_Physics::T_Body* BoxB = new Body_Physics::T_Body(T_GraphicsModule::BoxShape(200, 200), WINDOWWIDTH / 2.0, WINDOWHEIGHT / 2.0, 1.0);
 
-	BoxA->angularVelocity = 0.4f;
-	BoxB->angularVelocity = 0.1f;
+	//BoxA->angularVelocity = 0.4f;
+	//BoxB->angularVelocity = 0.1f;
+	BoxA->Rotation = 1.3f;
+	BoxA->Rotation = 2.3f;
 
 	bodies.push_back(BoxA);
-	bodies.push_back(BoxB);
+	//bodies.push_back(BoxB);
 
 	//Body_Physics::T_Body* Smallball = new Body_Physics::T_Body(T_GraphicsModule::CircleShape(50), 100, 50, 1.0);
 
@@ -87,12 +89,12 @@ void Tornado_Engine::Sandbox::T_MainLoop()
 				if (event.key.key == SDLK_LEFT)
 					PushForce.xComponent = 0;
 				break;
-			case SDL_EVENT_MOUSE_MOTION:
+			/*case SDL_EVENT_MOUSE_MOTION:
 				float cursorX, cursorY;
 				SDL_GetMouseState(&cursorX, &cursorY);
 				bodies[0]->Position.xComponent = cursorX;
 				bodies[0]->Position.yComponent = cursorY;
-				break;
+				break;*/
 			/*case SDL_EVENT_MOUSE_MOTION:
 				mouseCursor.xComponent = event.motion.x;
 				mouseCursor.yComponent = event.motion.y;
@@ -109,9 +111,9 @@ void Tornado_Engine::Sandbox::T_MainLoop()
 			case SDL_EVENT_MOUSE_BUTTON_DOWN:
 				float xPos, yPos;
 				SDL_GetMouseState(&xPos, &yPos);
-				Body_Physics::T_Body* smallBall = new Body_Physics::T_Body(T_GraphicsModule::CircleShape(50), xPos, yPos, 1.0);
-				smallBall->Restitution = 0.2f;
-				bodies.push_back(smallBall);
+				Body_Physics::T_Body* smallBox = new Body_Physics::T_Body(T_GraphicsModule::BoxShape(80, 80), xPos, yPos, 1.0);
+				smallBox->Restitution = 0.1f;
+				bodies.push_back(smallBox);
 				break;
 			/*case SDL_EVENT_MOUSE_BUTTON_UP:
 				if (LeftMouseButtonDown && event.button.button == SDL_BUTTON_LEFT) {
@@ -217,8 +219,8 @@ void Tornado_Engine::Sandbox::T_UpdatePhysics() {
 		//Vectors::Vec2D wind = Vectors::Vec2D(0.2f * PIXELS_PER_METER, 0.0f);
 		//body->T_AddForce(wind);
 		//Apply Weight Force
-		//Vectors::Vec2D weight = Vectors::Vec2D(0.0f, body->Mass * 9.8f * PIXELS_PER_METER);
-		//body->T_AddForce(weight);
+		Vectors::Vec2D weight = Vectors::Vec2D(0.0f, body->Mass * 9.8f * PIXELS_PER_METER);
+		body->T_AddForce(weight);
 		//Apply Push Force
 		body->T_AddForce(PushForce);
 
@@ -273,7 +275,7 @@ void Tornado_Engine::Sandbox::T_UpdatePhysics() {
 				T_CollisionDynamics::T_Contact contact;
 				if (T_CollisionDynamics::T_CollisionDetection::T_IsColliding(objectA, objectB, contact)) {
 					//Resolve The Collision Using Impulse Method.
-					//contact.T_ResolveCollision();
+					contact.T_ResolveCollision();
 					//Here we have the Contact info inside the contact object...
 					GFX->T_DrawCirleFilled(contact._Start.xComponent, contact._Start.yComponent, 3);
 					GFX->T_DrawCirleFilled(contact._End.xComponent, contact._End.yComponent, 3);

@@ -65,5 +65,22 @@ bool T_CollisionDynamics::T_CollisionDetection::T_IsCollidingPolygonPolygon(Body
 	if (baSeparation >= 0)
 		return false;
 
+	//Populate The Contact Information Values
+	contact.objectA = objectA;
+	contact.objectB = objectB;
+
+	if (abSeparation > baSeparation) {
+		contact._Depth = -abSeparation;
+		contact._Normal = aAxis.Vec2DNormal();
+		contact._Start = aPoint;
+		contact._End = aPoint + contact._Normal * contact._Depth;
+	}
+	else {
+		contact._Depth = -baSeparation;
+		contact._Normal = -bAxis.Vec2DNormal();
+		contact._Start = bPoint - contact._Normal * contact._Depth;
+		contact._End = bPoint;
+	}
+
 	return true;
 }
