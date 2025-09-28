@@ -37,6 +37,7 @@ namespace Tornado_Engine {
 		//DATA MEMBERS
 		bool WindowShouldClose = false;
 		bool LeftMouseButtonDown = false;
+		bool Debug = false;
 		uint32_t timePreviousFrame;
 
 		//VECTORS

@@ -52,7 +52,7 @@ void Body_Physics::T_Body::T_EulerIntegrateAngular(float dt) {
 	}
 	angularAcceleration = NetTorque * invI;
 	angularVelocity += angularAcceleration * dt;
-	Rotation += 8 * angularVelocity * dt;
+	Rotation += angularVelocity * dt;
 	T_ClearTorque();
 }
 

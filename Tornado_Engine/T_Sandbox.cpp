@@ -20,9 +20,9 @@ Tornado_Engine::Sandbox::Sandbox()
 	int xPosition = WINDOWWIDTH / 2;
 	int yPosition = WINDOWHEIGHT / 2;
 
-	Body_Physics::T_Body* Bigball = new Body_Physics::T_Body(T_GraphicsModule::CircleShape(200), WINDOWWIDTH/2.0, WINDOWHEIGHT/2.0, 0.0);
+	//Body_Physics::T_Body* Bigball = new Body_Physics::T_Body(T_GraphicsModule::CircleShape(200), WINDOWWIDTH/2.0, WINDOWHEIGHT/2.0, 0.0);
 
-	//Body_Physics::T_Body* BoxA = new Body_Physics::T_Body(T_GraphicsModule::BoxShape(200, 200), WINDOWWIDTH / 2.0, WINDOWHEIGHT / 2.0, 0.0);
+	Body_Physics::T_Body* BoxA = new Body_Physics::T_Body(T_GraphicsModule::BoxShape(200, 200), WINDOWWIDTH / 2.0, WINDOWHEIGHT / 2.0, 0.0);
 
 	Body_Physics::T_Body* Floor = new Body_Physics::T_Body(T_GraphicsModule::BoxShape(1300, 50), 700, 800, 0.0);
 	Body_Physics::T_Body* RightWall = new Body_Physics::T_Body(T_GraphicsModule::BoxShape(50, 600), 1325, 475, 0.0);
@@ -30,15 +30,17 @@ Tornado_Engine::Sandbox::Sandbox()
 	
 	//Body_Physics::T_Body* BoxB = new Body_Physics::T_Body(T_GraphicsModule::BoxShape(200, 200), WINDOWWIDTH / 2.0, WINDOWHEIGHT / 2.0, 1.0);
 
-	//BoxA->angularVelocity = 0.4f;
+	BoxA->angularVelocity = 0.4f;
 	//BoxB->angularVelocity = 0.1f;
-	//BoxA->Rotation = 1.3f;
-	//BoxA->Rotation = 2.3f;
-	Floor->Restitution = 0.2f;
-	Bigball->Rotation = 1.4f;
-	Bigball->Restitution = 0.3f;
+	BoxA->Rotation = 1.4f;
+	BoxA->Restitution = 0.7f;
+	Floor->Restitution = 0.7f;
+	LeftWall->Restitution = 0.7f;
+	RightWall->Restitution = 0.7f;
+	//Bigball->Rotation = 1.4f;
+	//Bigball->Restitution = 0.3f;
 
-	//bodies.push_back(BoxA);
+	bodies.push_back(BoxA);
 	//bodies.push_back(BoxB);
 	bodies.push_back(Floor);
 	bodies.push_back(RightWall);
@@ -49,8 +51,8 @@ Tornado_Engine::Sandbox::Sandbox()
 
 	//Body_Physics::T_Body* Bob = new Body_Physics::T_Body(T_GraphicsModule::CircleShape(50.0f), xPosition, yPosition, 2.0f);
 
-	bodies.push_back(Bigball);
-	/*bodies.push_back(Smallball); */
+	//bodies.push_back(Bigball);
+	//bodies.push_back(Smallball); 
 
 	/*Fluid.x = 720;
 	Fluid.y = 667;
@@ -89,6 +91,8 @@ void Tornado_Engine::Sandbox::T_MainLoop()
 					PushForce.yComponent = 50 * PIXELS_PER_METER;
 				if (event.key.key == SDLK_LEFT)
 					PushForce.xComponent = -50 * PIXELS_PER_METER;
+				if (event.key.key == SDLK_D)
+					Debug = !Debug;
 				break;
 			case SDL_EVENT_KEY_UP:
 				if (event.key.key == SDLK_UP)
@@ -103,8 +107,8 @@ void Tornado_Engine::Sandbox::T_MainLoop()
 			/*case SDL_EVENT_MOUSE_MOTION:
 				float cursorX, cursorY;
 				SDL_GetMouseState(&cursorX, &cursorY);
-				bodies[0]->Position.xComponent = cursorX;
-				bodies[0]->Position.yComponent = cursorY;
+				bodies[1]->Position.xComponent = cursorX;
+				bodies[1]->Position.yComponent = cursorY;
 				break;*/
 			/*case SDL_EVENT_MOUSE_MOTION:
 				mouseCursor.xComponent = event.motion.x;
@@ -129,9 +133,14 @@ void Tornado_Engine::Sandbox::T_MainLoop()
 			case SDL_EVENT_MOUSE_BUTTON_DOWN:
 				float xPos, yPos;
 				SDL_GetMouseState(&xPos, &yPos);
-				Body_Physics::T_Body* smallBall = new Body_Physics::T_Body(T_GraphicsModule::CircleShape(30), xPos, yPos, 2.0);
-				//smallBall->Restitution = 0.5f;
-				bodies.push_back(smallBall);
+
+				std::vector<Vectors::Vec2D> vertices = { Vectors::Vec2D(20,60), Vectors::Vec2D(-40,20), Vectors::Vec2D(-20,-60), Vectors::Vec2D(20,-60), Vectors::Vec2D(40,20) };
+
+				Body_Physics::T_Body* Poly = new Body_Physics::T_Body(T_GraphicsModule::PolygonShape(vertices), xPos, yPos, 2.0);
+				Poly->Restitution = 0.01f;
+				//For Others Shapes Try: Restitution = 0.1 & friction = 0.7
+				Poly->friction = 0.3f;
+				bodies.push_back(Poly);
 				break;
 			/*case SDL_EVENT_MOUSE_BUTTON_UP:
 				if (LeftMouseButtonDown && event.button.button == SDL_BUTTON_LEFT) {
@@ -168,8 +177,6 @@ void Tornado_Engine::Sandbox::DrawNow(SDL_Renderer* renderer)
 	//DRAW Bob
 	for(auto body:bodies){
 
-		body->isColliding ? std::cout << "Colliding" << std::endl : std::cout << "No Collision" << std::endl;
-
 		if (body->shape->GetType() == CIRCLE) {
 			T_GraphicsModule::CircleShape* circleShape = (T_GraphicsModule::CircleShape*)body->shape;
 			GFX->T_DrawCircle(body->Position.xComponent, body->Position.yComponent, circleShape->Radius, body->Rotation);
@@ -178,6 +185,10 @@ void Tornado_Engine::Sandbox::DrawNow(SDL_Renderer* renderer)
 		if (body->shape->GetType() == BOX) {
 			T_GraphicsModule::BoxShape* boxShape = (T_GraphicsModule::BoxShape*)body->shape;
 			GFX->T_DrawPolygon(body->Position.xComponent, body->Position.yComponent, boxShape->globalVertices);
+		}
+		if (body->shape->GetType() == POLYGON) {
+			T_GraphicsModule::PolygonShape* polygonShape = (T_GraphicsModule::PolygonShape*)body->shape;
+			GFX->T_DrawPolygon(body->Position.xComponent, body->Position.yComponent, polygonShape->globalVertices);
 		}
 	}
 
@@ -244,12 +255,12 @@ void Tornado_Engine::Sandbox::T_UpdatePhysics() {
 
 		//Generate Drag Force
 		/*if (body->Position.yComponent >= Fluid.y) {*/
-		Vectors::Vec2D drag = T_Physics::T_Force::T_GenerateDragForce(*body, 0.001f);
-		body->T_AddForce(drag);
+		//Vectors::Vec2D drag = T_Physics::T_Force::T_GenerateDragForce(*body, 0.001f);
+		//body->T_AddForce(drag);
 
 			//Generate Friction Force
-		Vectors::Vec2D Friction = T_Physics::T_Force::T_GenerateFrictionForce(*body, 3.0f * PIXELS_PER_METER);
-		body->T_AddForce(Friction);
+		//Vectors::Vec2D Friction = T_Physics::T_Force::T_GenerateFrictionForce(*body, 3.0f * PIXELS_PER_METER);
+		//body->T_AddForce(Friction);
 		//}
 
 		//Add Torque Force
@@ -294,13 +305,16 @@ void Tornado_Engine::Sandbox::T_UpdatePhysics() {
 				if (T_CollisionDynamics::T_CollisionDetection::T_IsColliding(objectA, objectB, contact)) {
 					//Resolve The Collision Using Impulse Method.
 					contact.T_ResolveCollision();
-					//Here we have the Contact info inside the contact object...
-					GFX->T_DrawCirleFilled(contact._Start.xComponent, contact._Start.yComponent, 3);
-					GFX->T_DrawCirleFilled(contact._End.xComponent, contact._End.yComponent, 3);
-					GFX->T_DrawLine(contact._Start.xComponent, contact._Start.yComponent, contact._Start.xComponent + contact._Normal.xComponent * 15, contact._Start.yComponent + contact._Normal.yComponent * 15);
 
-					objectA->isColliding = true;
-					objectB->isColliding = true;
+					if (Debug) {
+						//Here we have the Contact info inside the contact object...
+						GFX->T_DrawCirleFilled(contact._Start.xComponent, contact._Start.yComponent, 3);
+						GFX->T_DrawCirleFilled(contact._End.xComponent, contact._End.yComponent, 3);
+						GFX->T_DrawLine(contact._Start.xComponent, contact._Start.yComponent, contact._Start.xComponent + contact._Normal.xComponent * 15, contact._Start.yComponent + contact._Normal.yComponent * 15);
+
+						objectA->isColliding = true;
+						objectB->isColliding = true;
+					}
 				}
 			}
 		}

@@ -42,12 +42,17 @@ T_GraphicsModule::PolygonShape::PolygonShape()
 
 T_GraphicsModule::PolygonShape::PolygonShape(const std::vector<Vectors::Vec2D> vertices)
 {
-    //TODO
+    for (auto vertex : vertices) {
+        localVertices.push_back(vertex);
+        globalVertices.push_back(vertex);
+    }
+
+    std::cout << "PolygonShape Constructor Called!" << std::endl;
 }
 
 T_GraphicsModule::PolygonShape::~PolygonShape()
 {
-    //TODO
+    std::cout << "PolygonShape Destructor Called!" << std::endl;
 }
 
 ShapeType T_GraphicsModule::PolygonShape::GetType() const
@@ -61,7 +66,8 @@ T_GraphicsModule::T_Shape* T_GraphicsModule::PolygonShape::Clone() const
 }
 
 float T_GraphicsModule::PolygonShape::getMomentOfInertia() const {
-    return 0.0;
+    //TODO: To Be Calculated Correctly
+    return 10;
 }
 
 T_GraphicsModule::BoxShape::BoxShape(float width, float height)

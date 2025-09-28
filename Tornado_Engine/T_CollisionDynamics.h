@@ -10,7 +10,7 @@ namespace T_CollisionDynamics {
 		static bool T_IsColliding(Body_Physics::T_Body* objectA, Body_Physics::T_Body* objectB, T_Contact& contact);
 		static bool T_IsCollidingCircleCircle(Body_Physics::T_Body* objectA, Body_Physics::T_Body* objectB, T_Contact& contact);
 		static bool T_IsCollidingPolygonPolygon(Body_Physics::T_Body* objectA, Body_Physics::T_Body* objectB, T_Contact& contact);
-		//static bool T_IsCollidingPolygonCircle(Body_Physics::T_Body* objectA, Body_Physics::T_Body* objectB);
+		static bool T_IsCollidingPolygonCircle(Body_Physics::T_Body* Polygon, Body_Physics::T_Body* Circle, T_Contact& contact);
 	private:
 	};
 }
