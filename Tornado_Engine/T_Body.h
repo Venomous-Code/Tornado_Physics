@@ -45,6 +45,7 @@ namespace Body_Physics {
 		float invMass;
 		float I;
 		float invI;
+		float friction;
 		
 		bool isColliding = false;
 

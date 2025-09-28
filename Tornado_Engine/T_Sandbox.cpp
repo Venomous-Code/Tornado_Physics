@@ -36,7 +36,7 @@ Tornado_Engine::Sandbox::Sandbox()
 	//BoxA->Rotation = 2.3f;
 	Floor->Restitution = 0.2f;
 	Bigball->Rotation = 1.4f;
-	Bigball->Restitution = 0.5f;
+	Bigball->Restitution = 0.3f;
 
 	//bodies.push_back(BoxA);
 	//bodies.push_back(BoxB);
@@ -129,8 +129,8 @@ void Tornado_Engine::Sandbox::T_MainLoop()
 			case SDL_EVENT_MOUSE_BUTTON_DOWN:
 				float xPos, yPos;
 				SDL_GetMouseState(&xPos, &yPos);
-				Body_Physics::T_Body* smallBall = new Body_Physics::T_Body(T_GraphicsModule::CircleShape(80), xPos, yPos, 1.0);
-				smallBall->Restitution = 0.1f;
+				Body_Physics::T_Body* smallBall = new Body_Physics::T_Body(T_GraphicsModule::CircleShape(30), xPos, yPos, 2.0);
+				//smallBall->Restitution = 0.5f;
 				bodies.push_back(smallBall);
 				break;
 			/*case SDL_EVENT_MOUSE_BUTTON_UP:

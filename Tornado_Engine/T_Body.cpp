@@ -12,6 +12,7 @@ Body_Physics::T_Body::T_Body(const T_GraphicsModule::T_Shape& shape,int x, int y
 	this->NetForces = Vectors::Vec2D(0.0f, 0.0f);
 	this->NetTorque = 0.0f;
 	this->Restitution = 1.0f;
+	this->friction = 0.7f;
 	this->Mass = Mass;
 	if (Mass != 0.0f) {
 		this->invMass = 1.0f / Mass;
@@ -51,7 +52,7 @@ void Body_Physics::T_Body::T_EulerIntegrateAngular(float dt) {
 	}
 	angularAcceleration = NetTorque * invI;
 	angularVelocity += angularAcceleration * dt;
-	Rotation += angularVelocity * dt;
+	Rotation += 8 * angularVelocity * dt;
 	T_ClearTorque();
 }
 
